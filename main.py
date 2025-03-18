@@ -734,8 +734,8 @@ class Main(tk.Tk):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 self.socket = sock
-                # self.socket.connect(("localhost", 12345))
-                self.socket.connect(("192.168.0.29", 12345))
+                self.socket.connect(("localhost", 12345))
+                # self.socket.connect(("192.168.0.29", 12345))
                 self.screen_main()
 
                 t = threading.Thread(target=self.recv, args=())

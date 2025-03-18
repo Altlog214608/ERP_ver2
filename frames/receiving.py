@@ -322,7 +322,8 @@ class Receiving(tk.Frame):
             "po_num":"purchase_order_code",
             "sellingPrice": "price",
             "correspondentCode": "client_code",
-            "correspondentName": "client_name"
+            "correspondentName": "client_name",
+            "plant":"plant_code"
         }
 
         reordered_data = [0] * len(main_columns)
@@ -336,6 +337,9 @@ class Receiving(tk.Frame):
         # now = datetime.datetime.now()
         # date_idx = main_columns.index("date")
         # reordered_data[date_idx] = now.strftime("%y-%m-%d")
+        if self.sub_table_flag == False:
+            recl_idx = main_columns.index("receiving_classification")
+            reordered_data[recl_idx] = "purchasing"
 
         sub_columns = []
 
@@ -411,7 +415,13 @@ class Receiving(tk.Frame):
                             column_index.append(self.main_table_columns[self.main_table.data[i]['data'].index(k)])
                             if self.main_table_columns[self.main_table.data[i]['data'].index(k)][0] == "plant_code":
                                 temp = self.main_table.data[i]['data'][-3]
-                                # self.send_({"code":20815,"args":{"plant_code": k}})
+                                rec = self.main_table.data[i]['data'][0]
+
+                                self.send_({"code":20815,"args":{temp: k}})
+
+                                self.send_({"code":20816,"args":{rec: k}})
+
+                                return
                             send_data[key_name+str(i)] = self.main_table.data[i]['data'][0],self.main_table_columns[self.main_table.data[i]['data'].index(k)][0],k
                             standard_data.append(self.main_table.data[i]['data'][0])
                             change_data.append(k)
@@ -439,9 +449,9 @@ class Receiving(tk.Frame):
                                           padding=10)
             self.main_table.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
-            self.main_scrollbar = ttk.Scrollbar(self.frame3, orient="horizontal", command=self.main_table.canvas.xview)
-            self.main_scrollbar.pack(side="bottom", fill="x")
-            self.main_table.canvas.configure(xscrollcommand=self.main_scrollbar.set)
+            # self.main_scrollbar = ttk.Scrollbar(self.frame3, orient="horizontal", command=self.main_table.canvas.xview)
+            # self.main_scrollbar.pack(side="bottom", fill="x")
+            # self.main_table.canvas.configure(xscrollcommand=self.main_scrollbar.set)
 
     def create_sub_table(self):
         if self.mo_datalist is not None and self.mo_column is not None:
@@ -457,9 +467,9 @@ class Receiving(tk.Frame):
                                              padding=10)
                 self.sub_table.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
-                self.sub_scrollbar = ttk.Scrollbar(self.frame1, orient="horizontal", command=self.sub_table.canvas.xview)
-                self.sub_scrollbar.pack(side="bottom", fill="x")
-                self.sub_table.canvas.configure(xscrollcommand=self.sub_scrollbar.set)
+                # self.sub_scrollbar = ttk.Scrollbar(self.frame1, orient="horizontal", command=self.sub_table.canvas.xview)
+                # self.sub_scrollbar.pack(side="bottom", fill="x")
+                # self.sub_table.canvas.configure(xscrollcommand=self.sub_scrollbar.set)
             else:
                 print("Updating existing sub_table with new data...")  # 디버깅 로그 추가
                 print("New Data:", self.sub_data)  # 데이터 확인
@@ -549,6 +559,12 @@ class Receiving(tk.Frame):
             elif code == 20814:
                 self.material_data = data
                 print("자재테이블 전체 데이터 가져오기", code, self.material_data)
+
+            elif code == 20815:
+                pass
+
+            elif code == 20816:
+                pass
 
     # @staticmethod
     # def f20801(**kwargs): #발주번호 외 나머지 조회시
@@ -748,33 +764,41 @@ class Receiving(tk.Frame):
     #         return {"sign": 1, "data": result_list}
     #     else:
     #         return {"sign": 0, "data": None}
+
     # @staticmethod
     # @MsgProcessor
-    # def f20815(**kwargs):  # materialtable 테이블 데이터 가져오기
+    # def f20815(**kwargs):  # purchasing_order에 plant 값 바꾸기
     #     result = None
     #
-    #     result = dbm.query(f"SELECT * FROM materialtable")
+    #     for po_num, plant in kwargs.items():
+    #         result = dbm.query(f"UPDATE purchasing_order SET plant = '{plant}' WHERE po_num = '{po_num}'")
     #
-    #     for i in result:
-    #         result_list.append(list(i))
-    #
-    #     for i, v in enumerate(result_list):
-    #         for j, w in enumerate(v):
-    #             if type(w) is datetime.datetime:
-    #                 result_list[i][j] = w.strftime("%Y-%m-%d %H:%M:%S")
-    #
-    #     if result_list is not None:
-    #         return {"sign": 1, "data": result_list}
+    #     if result is not None:
+    #         return {"sign": 1, "data": []}
     #     else:
     #         return {"sign": 0, "data": None}
+
+    # @staticmethod
+    # @MsgProcessor
+    # def f20816(**kwargs):  # purchasing_order에 plant 값 바꾸기
+    #     result = None
     #
-    # def send_test(self, msg):
-    #     try:
-    #         encoded = msg.encode()
-    #         test_socket.send(str(len(encoded)).ljust(16).encode())
-    #         test_socket.send(encoded)
-    #     except Exception:
-    #         print(traceback.format_exc())
+    #     for receiving_code, plant in kwargs.items():
+    #         result = dbm.query(f"UPDATE receiving SET plant_code = '{plant}' WHERE receiving_code = '{receiving_code}'")
+    #
+    #     if result is not None:
+    #         return {"sign": 1, "data": []}
+    #     else:
+    #         return {"sign": 0, "data": None}
+
+
+    def send_test(self, msg):
+        try:
+            encoded = msg.encode()
+            test_socket.send(str(len(encoded)).ljust(16).encode())
+            test_socket.send(encoded)
+        except Exception:
+            print(traceback.format_exc())
 
     def send_test(self, msg):
         try:
