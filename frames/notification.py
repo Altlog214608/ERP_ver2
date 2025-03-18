@@ -1,9 +1,8 @@
 import tkinter as tk
 from itertools import count
 from tkinter import ttk
-
-
 from color import Color
+
 # nt = None
 
 class NotificationFrame(tk.Frame):

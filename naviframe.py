@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from color import Color
 import tablewidget
 
 class NaviFrame(tk.Frame):
