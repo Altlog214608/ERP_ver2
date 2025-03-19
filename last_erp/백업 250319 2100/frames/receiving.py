@@ -144,7 +144,8 @@ class Receiving(tk.Frame):
         2. 서브 테이블에서 원하는 값 체크 후 입고 버튼 누르면 아래 메인 테이블에 값 이동(구매오더, 생산지시서 상관 없음)\n
         3. 저장버튼을 누르면 입고 버튼으로 메인 테이블에 추가된 데이터 행 DB에 저장\n 
         4. 아래 메인 테이블에서 엔터 후 값 수정 뒤에 수정 버튼을 누르면 수정 된 값 DB반영\n
-        5. 구매오더, 생산지시서 버튼은 서브테이블의 데이터를 각각의 데이터로 맞춰 다시 그리고 새로고침 하는 역할
+        5. 구매오더, 생산지시서 버튼은 서브테이블의 데이터를 각각의 데이터로 맞춰 다시 그리고 새로고침 하는 역할\n
+        6. **중요 plant_code 기입 할 때(가로 스크롤 된 만큼  수정 셀도 이동해서 안보임) 에 엔터 눌렀을때 반응이 없는 것 처럼 보이는데 엔터 누르고 값 다 지우고 창고 코드 넣어야 함
         """)
 
     def purchase_table_load(self):
@@ -308,13 +309,6 @@ class Receiving(tk.Frame):
         for k in self.material_data[index]:
             original_data.append(k)
 
-        print(original_data)
-
-        # for i in original_data:
-        #     print("prd찾는 for문 진입")
-        #     if "PRD" in i:
-        #         print("PRD찾기")
-
         column_mapping = {
             "order_code": "order_code",
             "quantity": "quantity",
@@ -349,15 +343,20 @@ class Receiving(tk.Frame):
             recl_idx = main_columns.index("receiving_classification")
             reordered_data[recl_idx] = "원자재 입고"
 
-        print("reorder_data",reordered_data[7])
         for i in self.material_data:
             if i[0] == reordered_data[7]:
-                print(i)
                 reordered_data[8] = i[1]
-                print(reordered_data)
 
         reordered_data[9] = 'e001'
         sub_columns = []
+
+        for i in self.mo_datalist:
+            if i[0] == original_data[9]:
+                print("다시",i)
+                order_code_idx = main_columns.index("order_code")
+                order_code=i[7]
+                reordered_data[order_code_idx] = order_code
+
 
         return reordered_data
 
@@ -428,7 +427,7 @@ class Receiving(tk.Frame):
                 if i == j:
                     for k,m in zip(self.main_table.data[i]['data'],self.temp_data[i]):
                         if k != m:
-                            column_index.append(self.main_table_columns[self.main_table.data[i]['data'].index(k)])
+                            # column_index.append(self.main_table_columns[self.main_table.data[i]['data'].index(k)])
                             if self.main_table_columns[self.main_table.data[i]['data'].index(k)][0] == "plant_code":
                                 temp = self.main_table.data[i]['data'][-3]
                                 rec = self.main_table.data[i]['data'][0]
@@ -439,8 +438,8 @@ class Receiving(tk.Frame):
 
                                 return
                             send_data[key_name+str(i)] = self.main_table.data[i]['data'][0],self.main_table_columns[self.main_table.data[i]['data'].index(k)][0],k
-                            standard_data.append(self.main_table.data[i]['data'][0])
-                            change_data.append(k)
+                            # standard_data.append(self.main_table.data[i]['data'][0])
+                            # change_data.append(k)
                             i += 1
         # print(self.main_table_columns[self.main_table.data[i]['data'].index(k)])
         send_dict = {"code": 20804, "args": send_data}
@@ -807,14 +806,6 @@ class Receiving(tk.Frame):
     #     else:
     #         return {"sign": 0, "data": None}
 
-
-    def send_test(self, msg):
-        try:
-            encoded = msg.encode()
-            test_socket.send(str(len(encoded)).ljust(16).encode())
-            test_socket.send(encoded)
-        except Exception:
-            print(traceback.format_exc())
 
     def send_test(self, msg):
         try:

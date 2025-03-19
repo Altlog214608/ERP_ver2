@@ -3684,7 +3684,7 @@ class MsgHandler:
             result["data"]["data1"] = {
                 "x": [i[0] for i in data1],
                 "y": {
-                    "total price": [int(i[1]) for i in data1]
+                    "total price": [int(i[1])  if i[1] is not None else 0 for i in data1]
                 }
             }
 

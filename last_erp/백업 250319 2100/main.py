@@ -12,6 +12,8 @@ from color import Color
 from frames import *
 from frames import notification
 from line import *
+from frames import Customer_management
+
 
 pyglet.options["win32_gdi_font"] = True
 font_name = "경기천년제목 Medium"
@@ -835,8 +837,8 @@ class Main(tk.Tk):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 self.socket = sock
-                # self.socket.connect(("localhost", 12345))
-                self.socket.connect(("192.168.0.29", 12345))
+                self.socket.connect(("localhost", 12345))
+                # self.socket.connect(("192.168.0.29", 12345))
                 self.screen_main()
 
                 t = threading.Thread(target=self.recv, args=())

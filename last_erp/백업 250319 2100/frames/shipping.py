@@ -160,9 +160,9 @@ class Shipping(tk.Frame):
 
     def show_message(self):
         tk.messagebox.showinfo("사용법", """
-        1. 조회 시 Entry에 값 없을 시 maintable 새로 고침 \n
+        1. 조회 시 Entry에 값 없을 시 maintable 새로 고침 발주 코드는 ORD00# 으로 검색\n
         2. 조회 필드 왼쪽 테이블에서 원하는 값 체크 후 출고 버튼 누르면 아래 메인 테이블에 값 이동\n
-        3. 출고 버튼으로 메인 테이블에 추가된 데이터 행 DB에 저장\n 
+        3. 저장버튼 누르면 출고 버튼으로 메인 테이블에 추가된 데이터 행 DB에 저장\n 
         4. 아래 메인 테이블에서 엔터 후 값 수정 뒤에 수정 버튼을 누르면 수정 된 값 DB반영
         """)
 
@@ -323,12 +323,31 @@ class Shipping(tk.Frame):
         # date_idx = main_columns.index("date")
         # reordered_data[date_idx] = now.strftime("%y-%m-%d")
 
+        print("디버깅용",reordered_data)
+        print("mat데이터 ", self.material_data)
+
+        for i in self.material_data:
+            if i[0] == reordered_data[8]:
+                if "MAT" in i[0]:
+                    print(i)
+                    reordered_data[5] = i[3]
+                    print(reordered_data)
+                elif "PRD" in i[0]:
+                    print(i)
+                    reordered_data[5] = i[4]
+                    print(reordered_data)
+
+
         selling_price_idx = main_columns.index("selling_price")
         vat_price_idx = main_columns.index("vat_price")
         total_price_idx = main_columns.index("total_price")
+        son_num_idx = main_columns.index("sales_order_number")
 
-        reordered_data[vat_price_idx] = int(reordered_data[selling_price_idx] / 10)
-        reordered_data[total_price_idx] = reordered_data[selling_price_idx] + reordered_data[vat_price_idx]
+        reordered_data[vat_price_idx] = int(reordered_data[5] / 10)
+        reordered_data[total_price_idx] = reordered_data[5] + reordered_data[vat_price_idx]
+
+        son_num = reordered_data[1].replace("ORD", "SON")
+        reordered_data[son_num_idx] = son_num
 
         return reordered_data
 
